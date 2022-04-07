@@ -1,0 +1,20 @@
+The feedback received was: (The negative part)
+•	Construct more precise and shorter sentences.
+o		They gave a few examples of long and convoluted sentences in our report.
+•	Better descriptions on why we chose the state-of-the-art tools that we did.
+o		In the rapport we only mention that they are state-of-the-art and do not go into details
+•	The introduction was short
+•	Missing description on how to handle the issues we have in our dataset
+o		In the rapport we mention that some of the pictures are useless. How do we handle this? Do they get removed?
+•	Some references are missing
+•	The order of the rapport could be changes up a bit
+o		Some parts of the rapport makes use of stuff that is only introduced on later pages
+•	We should mention any potential bias in the dataset and any ethical issues.
+o		Even if there isn’t any
+•	What data was used to train the pretrained models that we use.
+The positive:
+•	The part about the project structure was a good idea
+•	The figures were well made 
+•	The method section was well written
+o		The feedback group was able to tell what we were trying to do
+
