@@ -12,7 +12,7 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 from distutils.dir_util import copy_tree
 import sys
-path = '/zhome/a7/0/155527/Desktop/s204161/fagprojekt/meter_number/meter_number'
+path = 'C:/Users/khali/Desktop/fagprojekt/meter_number/meter_number/'
 os.chdir(path)
 
 csv_file = pd.read_csv('labels.csv')
@@ -34,10 +34,10 @@ csv_file.at[1153,'meter_number'] = csv_file.at[1153,'meter_number'].split(' ')[0
 #Række-ID 435,440,442 står der 7359992897705033 / 7359992897705200 på alle 3, og ved manuel aflæsning
 #af billederne, inspiceres 7359992897705200 på 435, at der ikke er taget billede af stregkoden i 440 og 442.
 csv_file.at[435,'meter_number'] = csv_file.at[435,'meter_number'].split('/')[1]
+csv_file.at[435,'meter_number'] = csv_file.at[1070,'meter_number'].split('/')[0]
 
 paths = np.asarray(csv_file['image_path'])
 meter_numbers = np.asarray(csv_file['meter_number'])
-
 ##Even after cleaning up a bit, we can see that there is still some noisy/bad observations where it is unclear what the
 #real label is.
 #for i in meter_numbers:
@@ -50,20 +50,22 @@ meter_numbers = np.asarray(csv_file['meter_number'])
 counts = np.unique(meter_numbers, return_counts=True)[1]
 num_classes = len(counts)
 total_observations = sum(counts)
+max_label_length = np.unique(meter_numbers)[-1]
+
 
 path_train, path_test, meter_train, meter_test = train_test_split(paths, meter_numbers, test_size = 0.2, random_state=42)
 
 #-----------------------------------------------------
 #now that we have chosen what our test and train data is, we get the data into the format which EasyOCR uses.
 
-path = '/zhome/a7/0/155527/Desktop/s204161/fagprojekt/meter_number/meter_number/photos/'
+path = 'C:/Users/khali/Desktop/fagprojekt/meter_number/meter_number/photos'
 Image.MAX_IMAGE_PIXELS = None
 os.chdir(path)
 
 train_list = []
 test_list = []
-easyocr_train_path = '/zhome/a7/0/155527/Desktop/s204161/fagprojekt/EasyOCR-master/trainer/all_data/en_train/'
-easyocr_test_path = '/zhome/a7/0/155527/Desktop/s204161/fagprojekt/EasyOCR-master/trainer/all_data/en_val/'
+OCR_train_path = 'C:/Users/khali/Desktop/fagprojekt/check_lab/en_train/'
+OCR_test_path = 'C:/Users/khali/Desktop/fagprojekt/check_lab/en_val/'
 
 def todataX(path,csv_file):
     i_num = 0
@@ -71,23 +73,25 @@ def todataX(path,csv_file):
         for name in files:
             full_path_to_picture = os.path.join(root, name)
             path_to_picture = os.path.join(root, name).split('meter_number/')[2]
+            if '\\' in path_to_picture:
+                path_to_picture = path_to_picture.replace('\\','/')
             #path_to_dir = os.path.join(root, name).rsplit('/',1)[0]
             #dir_name = os.path.join(root, name).rsplit('/',2)[1]
             if path_to_picture in path_train:
                 new_id = 'ID' + str(csv_file[csv_file['image_path'] == path_to_picture]['Unnamed: 0'].item()) + '.' + path_to_picture.split('.')[-1]
-                label = meter_train[path_train == path_to_picture]
+                label = csv_file[csv_file['image_path'] == path_to_picture]['meter_number']
                 label = label.item()
                 label = str(label)
                 train_list.append([new_id, label])
                 #to copy image to train/test folder
-                #shutil.copy(full_path_to_picture, easyocr_train_path + new_id)
+                #shutil.copy(full_path_to_picture, OCR_train_path + new_id)
             elif path_to_picture in path_test:
                 new_id = 'ID' + str(csv_file[csv_file['image_path'] == path_to_picture]['Unnamed: 0'].item()) + '.' + path_to_picture.split('.')[-1]
-                label = meter_test[path_test == path_to_picture]
+                label = csv_file[csv_file['image_path'] == path_to_picture]['meter_number']
                 label = label.item()
                 label = str(label)
                 test_list.append([new_id, label])
-                #shutil.copy(full_path_to_picture, easyocr_test_path + new_id)
+                #shutil.copy(full_path_to_picture, OCR_test_path + new_id)
 
             i_num += 1
             print(i_num)
@@ -102,8 +106,8 @@ train_df = pd.DataFrame(train_list,dtype = 'string')
 test_df = pd.DataFrame(test_list, dtype = 'string')
 train_df.columns = ['filename', 'words']
 test_df.columns = ['filename', 'words']
-train_df.to_csv(r'/zhome/a7/0/155527/Desktop/s204161/fagprojekt/EasyOCR-master/trainer/all_data/en_train/labels.csv', header=True, index=None, sep='\t', mode='a')
-test_df.to_csv(r'/zhome/a7/0/155527/Desktop/s204161/fagprojekt/EasyOCR-master/trainer/all_data/en_val/labels.csv', header=True, index=None, sep='\t', mode='a')
+train_df.to_csv(r'C:/Users/khali/Desktop/fagprojekt/check_lab/en_train/labels.csv', header=True, index=False, sep='\t', mode='a')
+test_df.to_csv(r'C:/Users/khali/Desktop/fagprojekt/check_lab/en_val/labels.csv', header=True, index=False, sep='\t', mode='a')
 
 
 
