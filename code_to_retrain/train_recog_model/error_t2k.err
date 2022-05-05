@@ -1,0 +1,8 @@
+Loaded module: cuda/11.6
+Loaded module: cuda/11.6
+Traceback (most recent call last):
+  File "trainer.py", line 35, in <module>
+    train(opt, amp=False)
+  File "/zhome/a7/0/155527/Desktop/s204161/fagprojekt/EasyOCR-master/trainer/train.py", line 219, in train
+    cost = criterion(preds, text.to(device), preds_size.to(device), length.to(device))
+KeyboardInterrupt
