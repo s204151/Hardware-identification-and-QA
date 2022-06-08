@@ -4,7 +4,7 @@ import yaml
 from train import train
 from utils import AttrDict
 import pandas as pd
-
+import wandb
 
 cudnn.benchmark = True
 cudnn.deterministic = False
@@ -31,6 +31,61 @@ def get_config(file_path):
     os.makedirs(f'./saved_models/{opt.experiment_name}', exist_ok=True)
     return opt
 
-opt = get_config("config_files/en_filtered_further_config.yaml")
-train(opt, amp=False)
+opt = get_config("config_files/en_filtered_config.yaml")
+
+num_rounds = 1
+
+opt.num_iter = 10
+opt.valInterval = 2
+
+for round_nr in range(num_rounds):
+
+    wandb.init(
+        project=str(
+            opt.Transformation + "-" + opt.FeatureExtraction + "-" + opt.SequenceModeling + "-" + opt.Prediction + "_" + "1"),
+        name = f"experiment_{round_nr}",
+        config={
+            "learning_rate": opt.lr,
+            "beta1": opt.beta1,
+            "rho": opt.rho,
+            "eps": opt.eps,
+            "num_iter": opt.num_iter,
+            "batch_size": opt.batch_size,
+            "imgH": opt.imgH,
+            "imgW": opt.imgW,
+            "manualSeed": int(opt.manualSeed + round_nr),
+        })
+
+    train(opt, amp=False)
+
+    api = wandb.Api()
+    run = api.run(f"otovo-dtu-qa/{wandb.config.project}/{wandb.config.name}")
+    validation_loss = run.history()["val loss"]
+    validation_accuracy = run.history()["val accuracy"]
+
+    print(validation_loss)
+    print(validation_loss)
+    print(validation_loss)
+    print(validation_loss)
+    print(validation_loss)
+    print(validation_loss)
+    print(validation_loss)
+    print(validation_loss)
+    print(validation_loss)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

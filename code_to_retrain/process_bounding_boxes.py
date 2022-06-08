@@ -6,6 +6,7 @@ from matplotlib.transforms import Affine2D
 from PIL import Image, ExifTags
 from ast import literal_eval
 import numpy as np
+import shutil
 
 #configure these
 train_or_val = 'val'
@@ -16,7 +17,7 @@ path_to_csv_batch_2 = 'C:/Users/khali/OneDrive - Danmarks Tekniske Universitet/F
 csv_batch_1 = pd.read_csv(path_to_csv_batch_1, sep=',', header = 0)
 csv_batch_2 = pd.read_csv(path_to_csv_batch_2, sep=',', header = 0)
 
-#csv_df = csv_batch_1.append(csv_batch_2, ignore_index=True)
+csv_df = csv_batch_1.append(csv_batch_2, ignore_index=False)
 #csv_df.to_csv('C:/Users/khali/OneDrive - Danmarks Tekniske Universitet/Fagprojekt/boundingboxes_both_batches_' + train_or_val + '.csv')
 
 image_save_folder = 'C:/Users/khali/OneDrive - Danmarks Tekniske Universitet/Fagprojekt/clean_cropped_en_' + train_or_val
@@ -25,6 +26,12 @@ original_labels = pd.read_csv(image_path+'labels.csv',sep=',', header = None)
 
 for k in range(len(csv_batch_2)):
     csv_batch_2.at[k, 'image_url'] = csv_batch_2.at[k, 'image_url'].split('-')[-1]
+
+#destination for data in craft,
+destination = 'C:/Users/khali/OneDrive - Danmarks Tekniske Universitet/Fagprojekt/clean_en_' + train_or_val
+
+
+
 
 
 #path_to_csv_batch = 'C:/Users/khali/OneDrive - Danmarks Tekniske Universitet/Fagprojekt/boundingboxes_batch1_train.csv'
@@ -152,14 +159,16 @@ def crop(image_path, image_ID, BB):
     return c_img
 
 
+
+
 def crop_from_BB(labeled_image_IDs,image_path,BBs):
     # img = Image.open(image_path + labeled_image_IDs[12])
     # rotated_img = np.array(orient_w_metadata(img)[0])
     label_list = []
     for i in range(len(labeled_image_IDs)):
         image_ID = labeled_image_IDs[i]
-
         BB = BBs[i]
+        print(image_ID)
         if len(BB) > 1:
             for j in range(len(BB)):
                 c_img = crop(image_path, image_ID, BB[j])
@@ -169,8 +178,8 @@ def crop_from_BB(labeled_image_IDs,image_path,BBs):
                     info = original_labels[original_labels[0] == image_ID]
                     label_list.append([image_ID_multiple, str(info[1].item())])
                 elif image_ID in labeled_image_IDs_2:
-                    info = csv_batch_2.iloc[labeled_image_IDs_2.index(image_ID)]
-                    label_list.append([image_ID_multiple, str(info['transcription'][j])])
+                    info = csv_batch_2[csv_batch_2['image_url'] == image_ID]
+                    label_list.append([image_ID_multiple, str(literal_eval(info['transcription'].item())[j])])
         else:
             c_img = crop(image_path, image_ID, BB[0])
             if image_ID in labeled_image_IDs_1:
@@ -185,24 +194,76 @@ def crop_from_BB(labeled_image_IDs,image_path,BBs):
                 info = csv_batch_2[csv_batch_2['image_url'] == image_ID]
                 label_list.append([image_ID, str(info['transcription'].item())])
                 cv2.imwrite(image_save_folder + '/' + image_ID, c_img)
-            print(info)
-            print('_______')
-            print('\n')
-           #cv2.imshow('okay', c_img)
+            #print(info)
+            #print('_______')
+            #print('\n')
+    return label_list
+
+
+
+def to_craft_data(labeled_image_IDs,image_path, BBs,destination):
+    label_list = []
+    for i in range(len(labeled_image_IDs)):
+        image_ID = labeled_image_IDs[i]
+
+        BB = BBs[i]
+        if image_ID in labeled_image_IDs_1:
+            info = original_labels[original_labels[0] == image_ID]
+            new_BB = []
+            if len(BB) > 1:
+                for k in range(len(BB)):
+                    cnt = get_corner_points(BB[k], xy_pairwise=True)
+                    new_BB.append(cnt)
+            else:
+                cnt = get_corner_points(BB[0], xy_pairwise=True)
+                new_BB.append(cnt)
+            label_list.append([image_ID, [str(info[1].item())]*len(BB), new_BB])
+            #shutil.copy(image_path + '/' + image_ID, destination + '/' + image_ID)
+        elif image_ID in labeled_image_IDs_2:
+            info = csv_batch_2[csv_batch_2['image_url'] == image_ID]
+            new_BB = []
+            if len(BB) > 1:
+                for k in range(len(BB)):
+                    cnt = get_corner_points(BB[k], xy_pairwise=True)
+                    new_BB.append(cnt)
+                    #label_list.append inside loop since literal eval bugs out if len(BB) = 1,
+                label_list.append([image_ID, str(literal_eval(info['transcription'].item())), new_BB])
+            else:
+                cnt = get_corner_points(BB[0], xy_pairwise=True)
+                new_BB.append(cnt)
+                label_list.append([image_ID, str(info['transcription'].item()), new_BB])
+            #shutil.copy(image_path + '/' + image_ID, destination + '/' + image_ID)
 
     return label_list
+
 
 #we get the image IDs that have been labeled here,
 labeled_image_IDs_1, BBs_1 = process_BB(path_to_csv_batch_1)
 labeled_image_IDs_2, BBs_2 = process_BB(path_to_csv_batch_2)
 
-#crop images that have been labeled using bounding boxes,
-label_list = crop_from_BB(labeled_image_IDs_1 + labeled_image_IDs_2,image_path,BBs_1+BBs_2)
+# #remove this from train folder, there are 5 bounding boxes and none of them are readable.. idk why I labeled that one.
+# bad_index = labeled_image_IDs_1.index('ID253.jpg')
+# BBs_1.remove(BBs_1[bad_index])
+# labeled_image_IDs_1.remove(labeled_image_IDs_1[bad_index])
 
+
+all_labeled_image_IDs = labeled_image_IDs_1 + labeled_image_IDs_2
+all_BBs = BBs_1 + BBs_2
+
+# ##crop images that have been labeled using bounding boxes,
+# label_list = crop_from_BB(all_labeled_image_IDs,image_path,all_BBs)
+#
+# label_df = pd.DataFrame(label_list,dtype = 'string')
+# label_df.columns = ['filename', 'words']
+# label_df.to_csv('C:/Users/khali/OneDrive - Danmarks Tekniske Universitet/Fagprojekt/clean_cropped_en_' + train_or_val + '/labels.csv', header=True, index=False, sep='\t', mode='a')
+
+##--------------------------------
+
+#data for craft
+
+label_list = to_craft_data(all_labeled_image_IDs, image_path, all_BBs, destination)
 label_df = pd.DataFrame(label_list,dtype = 'string')
-label_df.columns = ['filename', 'words']
-label_df.to_csv('C:/Users/khali/OneDrive - Danmarks Tekniske Universitet/Fagprojekt/clean_cropped_en_' + train_or_val + '/labels.csv', header=True, index=False, sep='\t', mode='a')
-
-
+label_df.columns = ['filename', 'words','BBs']
+label_df.to_csv('C:/Users/khali/OneDrive - Danmarks Tekniske Universitet/Fagprojekt/clean_en_' + train_or_val + '/labels.csv', header=True, index=False, sep='\t', mode='a')
 
 

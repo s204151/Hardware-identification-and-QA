@@ -10,6 +10,8 @@ import torch.optim as optim
 import torch.utils.data
 from torch.cuda.amp import autocast, GradScaler
 import numpy as np
+import wandb
+
 import matplotlib.pyplot as plt
 
 from utils import CTCLabelConverter, AttnLabelConverter, Averager
@@ -32,6 +34,8 @@ def count_parameters(model):
 
 def train(opt, show_number = 2, amp=False):
     """ dataset preparation """
+
+
     if not opt.data_filtering_off:
         print('Filtering the images containing characters which are not in opt.character')
         print('Filtering the images whose label is longer than opt.batch_max_length')
@@ -187,7 +191,7 @@ def train(opt, show_number = 2, amp=False):
 
                 if 'CTC' in opt.Prediction:
                     preds = model(image, text).log_softmax(2) #DEBUG (AMP IS DISABLED; see line 211 instead)
-                    print(preds)
+                    #print(preds)
                     preds_size = torch.IntTensor([preds.size(1)] * batch_size)
                     preds = preds.permute(1, 0, 2)
                     torch.backends.cudnn.enabled = False
@@ -226,7 +230,7 @@ def train(opt, show_number = 2, amp=False):
             torch.nn.utils.clip_grad_norm_(model.parameters(), opt.grad_clip) 
             optimizer.step()
         loss_avg.add(cost)
-
+        wandb.log({"train loss á iteration": cost})
         # validation part
         if (i % opt.valInterval == 0) and (i!=0):
             print('training time: ', time.time()-t1)
@@ -244,12 +248,17 @@ def train(opt, show_number = 2, amp=False):
 
                 # training loss and validation loss
                 loss_log = f'[{i}/{opt.num_iter}] Train loss: {loss_avg.val():0.5f}, Valid loss: {valid_loss:0.5f}, Elapsed_time: {elapsed_time:0.5f}'
+                wandb.log({"val loss": valid_loss})
+                wandb.log({"avg. train loss": loss_avg.val()})
                 loss_avg.reset()
+
 
                 current_model_log = f'{"Current_accuracy":17s}: {current_accuracy:0.3f}, {"Current_norm_ED":17s}: {current_norm_ED:0.4f}'
 
+                wandb.log({"val accuracy": current_accuracy})
                 # keep best accuracy model (on valid dataset)
                 if current_accuracy > best_accuracy:
+
                     best_accuracy = current_accuracy
                     torch.save(model.state_dict(), f'./saved_models/{opt.experiment_name}/best_accuracy.pth')
                 if current_norm_ED > best_norm_ED:
@@ -275,7 +284,7 @@ def train(opt, show_number = 2, amp=False):
                         pred = pred[:pred.find('[s]')]
 
                     predicted_result_log += f'{gt:25s} | {pred:25s} | {confidence:0.4f}\t{str(pred == gt)}\n'
-                    print('ok')
+                    #print('ok')
                 predicted_result_log += f'{dashed_line}'
                 print(predicted_result_log)
                 log.write(predicted_result_log + '\n')
