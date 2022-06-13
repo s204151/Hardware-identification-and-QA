@@ -1,0 +1,107 @@
+Loaded module: cuda/11.6
+  File "/zhome/a7/0/155527/Desktop/s204161/fagprojekt/CRAFT-Reimplementation-craft/works_trainSynth.py", line 193
+    })
+    ^
+SyntaxError: unmatched '}'
+Loaded module: cuda/11.6
+Traceback (most recent call last):
+  File "/zhome/a7/0/155527/Desktop/s204161/fagprojekt/CRAFT-Reimplementation-craft/works_trainSynth.py", line 120, in <module>
+    name=f"experiment_{round_nr}",
+NameError: name 'round_nr' is not defined
+Loaded module: cuda/11.6
+Traceback (most recent call last):
+  File "/zhome/a7/0/155527/Desktop/s204161/fagprojekt/CRAFT-Reimplementation-craft/works_trainSynth.py", line 124, in <module>
+    "rho": rho,
+NameError: name 'rho' is not defined
+Loaded module: cuda/11.6
+wandb: Currently logged in as: kahmadi (otovo-dtu-qa). Use `wandb login --relogin` to force relogin
+wandb: wandb version 0.12.18 is available!  To upgrade, please run:
+wandb:  $ pip install wandb --upgrade
+wandb: Tracking run with wandb version 0.12.17
+wandb: Run data is saved locally in /zhome/a7/0/155527/Desktop/s204161/fagprojekt/CRAFT-Reimplementation-craft/wandb/run-20220612_171525-24zl6r1k
+wandb: Run `wandb offline` to turn off syncing.
+wandb: Syncing run experiment_seed42
+wandb: ⭐️ View project at https://wandb.ai/otovo-dtu-qa/CRAFT_iter_10000
+wandb: 🚀 View run at https://wandb.ai/otovo-dtu-qa/CRAFT_iter_10000/runs/24zl6r1k
+Invalid SOS parameters for sequential JPEG
+Invalid SOS parameters for sequential JPEG
+Invalid SOS parameters for sequential JPEG
+Invalid SOS parameters for sequential JPEG
+Invalid SOS parameters for sequential JPEG
+Invalid SOS parameters for sequential JPEG
+Invalid SOS parameters for sequential JPEG
+Invalid SOS parameters for sequential JPEG
+Invalid SOS parameters for sequential JPEG
+Invalid SOS parameters for sequential JPEG
+Invalid SOS parameters for sequential JPEG
+Invalid SOS parameters for sequential JPEG
+Invalid SOS parameters for sequential JPEG
+Invalid SOS parameters for sequential JPEG
+Invalid SOS parameters for sequential JPEG
+Invalid SOS parameters for sequential JPEG
+Invalid SOS parameters for sequential JPEG
+Invalid SOS parameters for sequential JPEG
+Invalid SOS parameters for sequential JPEG
+Invalid SOS parameters for sequential JPEG
+Invalid SOS parameters for sequential JPEG
+Invalid SOS parameters for sequential JPEG
+Invalid SOS parameters for sequential JPEG
+Invalid SOS parameters for sequential JPEG
+Invalid SOS parameters for sequential JPEG
+Invalid SOS parameters for sequential JPEG
+Invalid SOS parameters for sequential JPEG
+Invalid SOS parameters for sequential JPEG
+Invalid SOS parameters for sequential JPEG
+Invalid SOS parameters for sequential JPEG
+Invalid SOS parameters for sequential JPEG
+Invalid SOS parameters for sequential JPEG
+Invalid SOS parameters for sequential JPEG
+Invalid SOS parameters for sequential JPEG
+Invalid SOS parameters for sequential JPEG
+Invalid SOS parameters for sequential JPEG
+Invalid SOS parameters for sequential JPEG
+Invalid SOS parameters for sequential JPEG
+Invalid SOS parameters for sequential JPEG
+Invalid SOS parameters for sequential JPEG
+Invalid SOS parameters for sequential JPEG
+Invalid SOS parameters for sequential JPEG
+Invalid SOS parameters for sequential JPEG
+Invalid SOS parameters for sequential JPEG
+Invalid SOS parameters for sequential JPEG
+Invalid SOS parameters for sequential JPEG
+Invalid SOS parameters for sequential JPEG
+Invalid SOS parameters for sequential JPEG
+Invalid SOS parameters for sequential JPEG
+Invalid SOS parameters for sequential JPEG
+Invalid SOS parameters for sequential JPEG
+Invalid SOS parameters for sequential JPEG
+Invalid SOS parameters for sequential JPEG
+Invalid SOS parameters for sequential JPEG
+Invalid SOS parameters for sequential JPEG
+Invalid SOS parameters for sequential JPEG
+Invalid SOS parameters for sequential JPEG
+Invalid SOS parameters for sequential JPEG
+Invalid SOS parameters for sequential JPEG
+Invalid SOS parameters for sequential JPEG
+Invalid SOS parameters for sequential JPEG
+Invalid SOS parameters for sequential JPEG
+Invalid SOS parameters for sequential JPEG
+Invalid SOS parameters for sequential JPEG
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+  File "/appl/python/3.9.11/lib/python3.9/multiprocessing/spawn.py", line 116, in spawn_main
+    exitcode = _main(fd, parent_sentinel)
+  File "/appl/python/3.9.11/lib/python3.9/multiprocessing/spawn.py", line 125, in _main
+    prepare(preparation_data)
+  File "/appl/python/3.9.11/lib/python3.9/multiprocessing/spawn.py", line 236, in prepare
+    _fixup_main_from_path(data['init_main_from_path'])
+  File "/appl/python/3.9.11/lib/python3.9/multiprocessing/spawn.py", line 287, in _fixup_main_from_path
+    main_content = runpy.run_path(main_path,
+  File "/appl/python/3.9.11/lib/python3.9/runpy.py", line 267, in run_path
+    code, fname = _get_code_from_file(run_name, path_name)
+  File "/appl/python/3.9.11/lib/python3.9/runpy.py", line 242, in _get_code_from_file
+    code = compile(f.read(), fname, 'exec')
+  File "/zhome/a7/0/155527/Desktop/s204161/fagprojekt/CRAFT-Reimplementation-craft/works_trainSynth.py", line 130
+    wandb.log({"val accuracy":})
+                              ^
+SyntaxError: invalid syntax
