@@ -35,11 +35,14 @@ opt = get_config("config_files/en_filtered_config.yaml")
 
 num_rounds = 1
 
-opt.num_iter = 10
-opt.valInterval = 2
+opt.num_iter = 30000
+opt.valInterval = 1000
+opt.lr = 0.001
+opt.weight_decay = 0.0005
 
 for round_nr in range(num_rounds):
-
+    opt.train_data = 'all_data/clean_cropped_en_train_split_' + str(round_nr)
+    opt.valid_data = 'all_data/clean_cropped_en_val_split_' + str(round_nr)
     wandb.init(
         project=str(
             opt.Transformation + "-" + opt.FeatureExtraction + "-" + opt.SequenceModeling + "-" + opt.Prediction + "_" + "1"),
@@ -48,6 +51,7 @@ for round_nr in range(num_rounds):
             "learning_rate": opt.lr,
             "beta1": opt.beta1,
             "rho": opt.rho,
+            "weight_decay": opt.weight_decay,
             "eps": opt.eps,
             "num_iter": opt.num_iter,
             "batch_size": opt.batch_size,
@@ -56,22 +60,21 @@ for round_nr in range(num_rounds):
             "manualSeed": int(opt.manualSeed + round_nr),
         })
 
-    train(opt, amp=False)
+    train(opt, amp=False,round_nr = round_nr)
 
-    api = wandb.Api()
-    run = api.run(f"otovo-dtu-qa/{wandb.config.project}/{wandb.config.name}")
-    validation_loss = run.history()["val loss"]
-    validation_accuracy = run.history()["val accuracy"]
-
-    print(validation_loss)
-    print(validation_loss)
-    print(validation_loss)
-    print(validation_loss)
-    print(validation_loss)
-    print(validation_loss)
-    print(validation_loss)
-    print(validation_loss)
-    print(validation_loss)
+    # api = wandb.Api()
+    # run = api.run(f"otovo-dtu-qa/{wandb.config.project}/{wandb.config.name}")
+    #
+    # validation_loss = run.history()["val loss"]
+    # validation_accuracy = run.history()["val accuracy"]
+    #
+    # print(validation_loss)
+    # print(validation_loss)
+    # print(validation_loss)
+    # print(validation_loss)
+    # print(validation_loss)
+    # print(validation_loss)
+    # print(validation_loss)
 
 
 
