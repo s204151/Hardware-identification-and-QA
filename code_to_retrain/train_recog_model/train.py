@@ -32,7 +32,7 @@ def count_parameters(model):
     print(f"Total Trainable Params: {total_params}")
     return total_params
 
-def train(opt, show_number = 2, amp=False):
+def train(opt, show_number = 2, amp=False, round_nr = 0):
     """ dataset preparation """
 
 
@@ -147,10 +147,11 @@ def train(opt, show_number = 2, amp=False):
         #optimizer = optim.Adam(filtered_parameters, lr=opt.lr, betas=(opt.beta1, 0.999))
         optimizer = optim.Adam(filtered_parameters)
     else:
-        optimizer = optim.Adadelta(filtered_parameters, lr=opt.lr, rho=opt.rho, eps=opt.eps)
+        optimizer = optim.Adadelta(filtered_parameters, lr=opt.lr, rho=opt.rho, eps=opt.eps, weight_decay = opt.weight_decay)
     print("Optimizer:")
     print(optimizer)
-
+    #decaying_lr = opt.lr
+    #schedule_lr_decay = MultiStepLR(optimizer, milestones=range(5000,opt.num_iter,int(opt.num_iter/10)), gamma=0.5)
     """ final options """
     # print(opt)
     with open(f'./saved_models/{opt.experiment_name}/opt.txt', 'a', encoding="utf8") as opt_file:
@@ -175,6 +176,8 @@ def train(opt, show_number = 2, amp=False):
     best_accuracy = -1
     best_norm_ED = -1
     i = start_iter
+
+    calculate_lr = 0
 
     scaler = GradScaler()
     t1= time.time()
@@ -237,7 +240,7 @@ def train(opt, show_number = 2, amp=False):
             t1=time.time()
             elapsed_time = time.time() - start_time
             # for log
-            with open(f'./saved_models/{opt.experiment_name}/log_train.txt', 'a', encoding="utf8") as log:
+            with open(f'./saved_models/{opt.experiment_name}_seed_{str(opt.manual_seed)}/log_train.txt', 'a', encoding="utf8") as log:
                 model.eval()
                 with torch.no_grad():
                     #print(preds.shape) # Changes are to be made to validation()
@@ -255,7 +258,7 @@ def train(opt, show_number = 2, amp=False):
 
                 current_model_log = f'{"Current_accuracy":17s}: {current_accuracy:0.3f}, {"Current_norm_ED":17s}: {current_norm_ED:0.4f}'
 
-                wandb.log({"val accuracy": current_accuracy})
+                wandb.log({"train accuracy": current_accuracy})
                 # keep best accuracy model (on valid dataset)
                 if current_accuracy > best_accuracy:
 
@@ -290,12 +293,20 @@ def train(opt, show_number = 2, amp=False):
                 log.write(predicted_result_log + '\n')
                 print('validation time: ', time.time()-t1)
                 t1=time.time()
+
+        #decaying_lr *= (1. / (1. + optimizer.decay * torch.cast(i, torch.dtype(optimizer.decay))))
+        #wandb.log('decaying lr': lr)
         # save model per 1e+4 iter.
-        if (i + 1) % 1e+4 == 0:
+        if (i + 1) % 1e+3 == 0:
             torch.save(
                 model.state_dict(), f'./saved_models/{opt.experiment_name}/iter_{i+1}.pth')
+
+
 
         if i == opt.num_iter:
             print('end the training')
             sys.exit()
         i += 1
+
+    return
+        #schedule_lr_decay.step()
